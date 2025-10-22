@@ -1,0 +1,100 @@
+import React, { useRef, useState } from "react";
+import { Bars3Icon, MagnifyingGlassIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
+import InputField from "./InputField";
+
+const SearchForm: React.FC = () => {
+  const startDateRef = useRef<HTMLInputElement | null>(null);
+  const endDateRef = useRef<HTMLInputElement | null>(null);
+
+  const [category, setCategory] = useState("");
+  const [searchText, setSearchText] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [extraField, setExtraField] = useState("");
+
+  const openDatePicker = (ref: React.RefObject<HTMLInputElement | null>) => {
+    const input = ref.current;
+    if (input) {
+      (input as any).showPicker?.();
+      input.focus();
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-gray-700">Search Form</h2>
+
+      <form className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-5">
+        {/* First row: 2 fields, each spans 3 columns */}
+        <div className="col-span-1 md:col-span-3">
+          <InputField
+            label="Category"
+            type="select"
+            options={["Books", "Articles", "Reports"]}
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            leftIcon={<Bars3Icon className="w-5 h-5 text-gray-400" />}
+          />
+        </div>
+
+        <div className="col-span-1 md:col-span-3">
+          <InputField
+            label="Search Text"
+            type="text"
+            placeholder="Enter keywords..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            leftIcon={<MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />}
+          />
+        </div>
+
+        {/* Second row: 3 fields, each spans 2 columns */}
+        <div className="col-span-1 md:col-span-2">
+          <InputField
+            label="Start Date"
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            rightIcon={<CalendarDaysIcon className="w-5 h-5 text-green-500" />}
+            onRightIconClick={() => openDatePicker(startDateRef)}
+            ref={startDateRef}
+          />
+        </div>
+
+        <div className="col-span-1 md:col-span-2">
+          <InputField
+            label="End Date"
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            rightIcon={<CalendarDaysIcon className="w-5 h-5 text-green-500" />}
+            onRightIconClick={() => openDatePicker(endDateRef)}
+            ref={endDateRef}
+          />
+        </div>
+
+        <div className="col-span-1 md:col-span-2">
+          <InputField
+            label="Extra Field"
+            type="text"
+            placeholder="Enter extra info..."
+            value={extraField}
+            onChange={(e) => setExtraField(e.target.value)}
+          />
+        </div>
+
+        {/* Submit button spans full width */}
+        <div className="col-span-6">
+          <button
+            type="submit"
+            className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition"
+          >
+            Search
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default SearchForm;
