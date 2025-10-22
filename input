@@ -1,0 +1,77 @@
+import React, { ReactNode, ForwardedRef } from "react";
+
+interface InputFieldProps {
+  label: string;
+  type?: string; // "text", "date", "select", etc.
+  placeholder?: string;
+  options?: string[];
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
+  onRightIconClick?: () => void;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+}
+
+const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
+  (
+    {
+      label,
+      type = "text",
+      placeholder,
+      options = [],
+      leftIcon,
+      rightIcon,
+      onRightIconClick,
+      value,
+      onChange,
+    },
+    ref: ForwardedRef<HTMLInputElement>
+  ) => {
+    // Determine text color: grey if empty, black if filled
+    const inputColor = value ? "text-black" : "text-red-500";
+
+    return (
+      <div>
+        <label className="block text-gray-600 mb-1">{label}</label>
+        <div className="flex items-center justify-between border border-gray-300 rounded px-3 py-2 bg-white focus-within:ring-2 focus-within:ring-green-500">
+          {leftIcon && <div className="mr-2">{leftIcon}</div>}
+
+          {type === "select" ? (
+            <select
+              className={`w-full bg-transparent focus:outline-none ${inputColor}`}
+              value={value}
+              onChange={onChange}
+              style={{ color: value ? "black" : "red" }}
+            >
+              <option value="" disabled hidden>
+                {placeholder || "Select option"}
+              </option>
+              {options.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              type={type}
+              ref={ref}
+              placeholder={placeholder}
+              value={value}
+              onChange={onChange}
+              className={`w-full bg-transparent focus:outline-none placeholder-red-500 appearance-none ${inputColor} [&::-webkit-calendar-picker-indicator]:hidden`}
+            />
+          )}
+
+          {rightIcon && (
+            <div className="ml-2 cursor-pointer" onClick={onRightIconClick}>
+              {rightIcon}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+);
+
+export default InputField;
