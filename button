@@ -1,0 +1,113 @@
+"use client";
+
+import { forwardRef, ReactNode } from "react";
+import clsx from "clsx";
+
+type Variant = "primary" | "secondary" | "destructive" | "ghost" | "link";
+type Size = "small" | "default" | "large";
+
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: Variant;
+  size?: Size;
+  loading?: boolean;
+  leadingIcon?: ReactNode;
+  trailingIcon?: ReactNode;
+  onColor?: boolean;
+};
+
+const baseStyles = [
+  "inline-flex items-center justify-center relative",
+  "cursor-pointer disabled:cursor-not-allowed",
+  "tracking-wide transition rounded-full ",
+  "focus:scale-[0.98]",
+  "focus-visible:scale-[0.98]",
+  " outline-offset-2",
+  "outline-sky-500",
+  "focus:outline-2",
+];
+
+const variantStyles: Record<Variant, string[]> = {
+  primary: [
+    "bg-indigo-500 text-white",
+    "py-2 px-8 leading-6",
+    "rounded-full",
+    "font-semibold tracking-wide",
+    "cursor-pointer",
+    "inline-flex items-center justify-center",
+    "relative shadow",
+    "transition",
+    "hover:bg-yellow-600 hover:shadow-md",
+
+    // focus ring
+
+    // disabled
+    "disabled:opacity-60 disabled:cursor-not-allowed",
+  ],
+  secondary: [
+    "font-normal bg-gray-50 hover:bg-gray-100 text-gray-950",
+    "shadow border border-neutral-200/50",
+    "disabled:bg-gray-50",
+  ],
+  destructive: [
+    "font-semibold bg-red-500 hover:bg-red-600 text-white",
+    "shadow hover:shadow-md",
+    "disabled:bg-red-500/50 disabled:shadow",
+  ],
+  ghost: ["font-light text-gray-950 hover:text-gray-600"],
+  link: ["font-light text-indigo-500 hover:text-indigo-600 hover:underline"],
+};
+
+const onColorBackground: Record<Variant, string> = {
+  primary: "bg-yellow-500 hover:bg-yellow-600 text-white",
+  secondary: "bg-green-500 hover:bg-green-600 text-white",
+  destructive: "",
+  ghost: "",
+  link: "",
+};
+
+const sizeStyles: Record<Size, string[]> = {
+  small: ["text-sm py-1 px-4"],
+  default: ["text-base py-2 px-8"],
+  large: ["text-lg py-3 px-12"],
+};
+
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      className,
+      children,
+      variant = "primary",
+      size = "default",
+      loading = false,
+      leadingIcon,
+      trailingIcon,
+      onColor = false,
+      ...rest
+    },
+    ref
+  ) => {
+    const classes = clsx(
+      baseStyles,
+      onColor ? onColorBackground[variant] : variantStyles[variant],
+      sizeStyles[size],
+      className
+    );
+
+    return (
+      <button
+        ref={ref}
+        disabled={loading || rest.disabled}
+        className={classes}
+        {...rest}
+      >
+        <span className="flex items-center gap-2">
+          {leadingIcon && <span>{leadingIcon}</span>}
+          {children}
+          {trailingIcon && <span>{trailingIcon}</span>}
+        </span>
+      </button>
+    );
+  }
+);
+
+Button.displayName = "Button";
