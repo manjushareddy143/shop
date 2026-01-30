@@ -1,0 +1,106 @@
+import React from "react";
+
+export type TableCellVariant = "header" | "default";
+
+export interface TableCellProps {
+  title?: string;
+  value?: string | number;
+  subtitle?: string;
+  date?: string;
+  columnKey?: string;
+  sortConfig?: {
+    key: string;
+    direction: "asc" | "desc";
+  };
+  onSort?: (key: string) => void;
+  variant?: TableCellVariant;
+}
+
+export const TableCell: React.FC<TableCellProps> = ({
+  title,
+  value,
+  subtitle,
+  date,
+  columnKey,
+  sortConfig,
+  onSort,
+  variant = "default"
+}) => {
+  const isHeader = variant === "header";
+  const isSorted = sortConfig?.key === columnKey;
+
+  const renderSortIcon = () => {
+    if (!columnKey) return null;
+  
+    // Default → DOWN arrow
+    if (!isSorted) {
+      return (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+          <path d="M7 10l5 5 5-5" stroke="gray" strokeWidth="2" />
+        </svg>
+      );
+    }
+  
+    // Ascending → UP arrow
+    if (sortConfig?.direction === "asc") {
+      return (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+          <path d="M7 14l5-5 5 5" stroke="gray" strokeWidth="2" />
+        </svg>
+      );
+    }
+  
+    // Descending → DOWN arrow
+    return (
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+        <path d="M7 10l5 5 5-5" stroke="gray" strokeWidth="2" />
+      </svg>
+    );
+  };
+  
+
+  const formattedDate = date
+    ? new Date(date).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      })
+    : null;
+
+  const CellTag: keyof JSX.IntrinsicElements = isHeader ? "th" : "td";
+
+  return (
+    <CellTag
+      onClick={() => isHeader && columnKey && onSort?.(columnKey)}
+      className={`px-4 py-3 border-b border-gray-200 
+        ${isHeader ? "font-semibold text-gray-700 cursor-pointer bg-gray-100 select-none" : ""}
+      `}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col">
+          {isHeader && <span>{title}</span>}
+
+          {!isHeader && title && (
+            <span className="font-semibold text-gray-900">{title}</span>
+          )}
+
+          {!isHeader && !title && value !== undefined && (
+            <span className="text-gray-800">{value}</span>
+          )}
+
+          {!isHeader && formattedDate && (
+            <span className="text-gray-700 text-sm">{formattedDate}</span>
+          )}
+
+          {!isHeader && subtitle && (
+            <span className="text-xs text-gray-500">{subtitle}</span>
+          )}
+        </div>
+
+        {isHeader && (
+          <span className="ml-2">{renderSortIcon()}</span>
+        )}
+      </div>
+    </CellTag>
+  );
+};
