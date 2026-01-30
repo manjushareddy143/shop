@@ -1,0 +1,171 @@
+import { useState, useMemo } from "react";
+import { TableCell } from "./tablecell";
+
+
+function toISO(dateStr: string): string {
+  // If already ISO, return as is
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr.trim())) {
+    return dateStr.trim();
+  }
+
+  // Convert DD/MM/YYYY → YYYY-MM-DD
+  const parts = dateStr.trim().split("/");
+  if (parts.length === 3) {
+    const [day, month, year] = parts;
+    return `${year}-${month}-${day}`;
+  }
+
+  // Fallback: let JS try to parse
+  return new Date(dateStr).toISOString().slice(0, 10);
+}
+
+interface RowData {
+  id: number;
+  name: string;
+  age: number;
+  city: string;
+  date: string;
+}
+
+const data: RowData[] = [
+  {
+    id: 1,
+    name: "manju",
+    age: 33,
+    city: "chennai",
+    date: "1964-09-30",
+  },
+  {
+    id: 2,
+    name: "sara",
+    age: 28,
+    city: "mumbai",
+    date: "1990-05-12",
+  },
+  {
+    id: 3,
+    name: "anita",
+    age: 40,
+    city: "delhi",
+    date: "1985-03-20",
+  },
+];
+
+export default function SorttableTable() {
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof RowData;
+    direction: "asc" | "desc";
+  }>({
+    key: "name",
+    direction: "desc",
+  });
+
+  const sortData = useMemo(() => {
+    const sorted = [...data];
+    const { key, direction } = sortConfig;
+  
+    sorted.sort((a, b) => {
+      const aVal =
+        key === "date" ? new Date(toISO(a.date)).getTime() : a[key];
+  
+      const bVal =
+        key === "date" ? new Date(toISO(b.date)).getTime() : b[key];
+  
+      if (aVal < bVal) return direction === "asc" ? -1 : 1;
+      if (aVal > bVal) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  
+    return sorted;
+  }, [sortConfig]);
+  
+
+  //  const handleSort=(key:keyof RowData)=>{
+  //    setSortConfig((previousSort)=>{
+  //      const isSameColumn=previousSort.key===key;
+  //      const isAccending=previousSort.direction==='asc'
+  //      return {
+  //        key:key,
+  //        direction:isSameColumn&&isAccending?"desc":"asc"
+  //      }
+  //    })
+
+  // const handleSort = (key: keyof RowData) => {
+  //   setSortConfig((previousSort) => {
+  //     const isSameColumn = previousSort.key === key;
+  //     const isAssending = previousSort.direction === "asc";
+
+  //     return {
+  //       key: key,
+  //       direction: isSameColumn && isAssending ? "desc" : "asc",
+  //     };
+  //   });
+  // };
+  const handleSort = (key: keyof RowData) => {
+    setSortConfig((prev) => ({
+      key,
+      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
+    }));
+  };
+  return (
+    <table className="min-w-full border border-gray-200 text-sm">
+      {/* HEADER */}
+      <thead>
+        <tr>
+          <TableCell
+            title="Name"
+            variant="header"
+            columnKey="name"
+            sortConfig={sortConfig}
+            onSort={handleSort}
+          />
+
+          <TableCell
+            title="Age"
+            variant="header"
+            columnKey="age"
+            sortConfig={sortConfig}
+            onSort={handleSort}
+          />
+
+          <TableCell
+            title="City"
+            variant="header"
+            columnKey="city"
+            sortConfig={sortConfig}
+            onSort={handleSort}
+          />
+
+          <TableCell
+            title="Date"
+            variant="header"
+            columnKey="date"
+            sortConfig={sortConfig}
+            onSort={handleSort}
+          />
+
+          {/* F / Dropdown / Actions column */}
+          <TableCell title="F" variant="header" />
+        </tr>
+      </thead>
+
+      {/* BODY */}
+      <tbody>
+        {sortData.map((row) => (
+          <tr key={row.id} className="hover:bg-gray-50 transition-colors">
+            <TableCell title={row.name} subtitle={`ID: ${row.id}`} />
+
+            <TableCell value={row.age} />
+
+            <TableCell value={row.city} subtitle="UK" />
+
+            <TableCell date={row.date} />
+
+            {/* F column body */}
+            <TableCell value="⋮" />
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
